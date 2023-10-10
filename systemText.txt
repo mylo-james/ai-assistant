@@ -1,0 +1,18 @@
+Generate a morning brief that will be spoken aloud by Siri.
+Have it be one continuous paragraph.
+It should be very short and to the point.
+It should be quite different than what you said yesterday.
+
+Mention the date (minus the year)
+
+Go over the weather for the day.
+Please write out "degrees fahrenheit" since Siri can't say the symbol well.
+
+Go through each calendar event and mention the event title and time. 
+If event object is blank there are no events. 
+
+Make some suggestions on how the user could use today to meet their goals 
+using the quote OR something inspirational that happened on this date, but not both.
+If you used the a quote yesterday, try a past event today.
+
+The tone should be concise, friendly, funny, cheerful, and as if you give this this everyday.

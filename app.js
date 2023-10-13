@@ -16,15 +16,17 @@ app.get("/", async ({ query: { events = {} } }, res) => {
   const yesterday = await fs.readFile("yesterday.txt", "utf8");
 
   const {
-    data: { hourly: weather },
+    data: { daily: weather },
   } = await axios({
     method: "GET",
-    url: "https://api.open-meteo.com/v1/forecast?latitude=41.85&longitude=-87.65&hourly=temperature_2m,precipitation_probability,windspeed_10m&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timeformat=unixtime&timezone=America%2FChicago&forecast_days=1",
+    url: "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_hours,windspeed_10m_max&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FChicago&forecast_days=1",
     headers: {
       "Content-Type": "application/json",
     },
   });
 
+  const forecast = `Today the WMO weather code is ${weather.weathercode}. It is going to have a high of ${weather.temperature_2m_max}, a low of ${weather.temperature_2m_min}, a max windspeed of ${weather.windspeed_10m_max} and it's going to precipitate for ${weather.precipitation_hours} hours today.`;
+  console.log(forecast);
   const { data } = await axios({
     method: "GET",
     url: "https://zenquotes.io/api/today",
@@ -35,19 +37,10 @@ app.get("/", async ({ query: { events = {} } }, res) => {
   const quote = data[0].q;
   const author = data[0].a;
 
-  const weatherObj = JSON.stringify(
-    weather.time.reduce((accum, time, i) => {
-      const hour = new Date(time * 1000).toString().slice(16, 21);
-      const temp = `${weather.temperature_2m[i]}F`;
-      const precipitation = `${weather.precipitation_probability[i]}%`;
-      const windspeed = `${weather.windspeed_10m[i]}mph`;
-      accum[hour] = { temp, precipitation, windspeed };
-      return accum;
-    }, {})
-  );
+  console.log(weather);
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4",
+    model: "gpt-3.5-turbo",
     messages: [
       {
         role: "system",
@@ -55,29 +48,35 @@ app.get("/", async ({ query: { events = {} } }, res) => {
       },
       {
         role: "system",
-        content: `Yesterday you said: ${yesterday}`,
+        content: `Here's some background on the user: ${userData}`,
       },
       {
         role: "system",
         content: prompt,
       },
       {
-        role: "system",
-        content: `Here's the some JSON report of the forecast today: ${weatherObj}`,
-      },
-      {
-        role: "system",
-        content: `Here's some background on the user: ${userData}`,
-      },
-      {
         role: "user",
-        content: JSON.stringify({ events, quote, author }),
+        content: `Here are my events, a quote, and who the quote is by. ${JSON.stringify(
+          { events, quote, author, forecast }
+        )}`,
+      },
+      {
+        role: "system",
+        content: `Make it much different than this brief: ${yesterday}.`,
+      },
+      {
+        role: "system",
+        content: "Keep responses to less that 100 words.",
+      },
+      {
+        role: "assistant",
+        content: "I will try and keep my responses to less that 100 words.",
       },
     ],
-    temperature: 1.1,
+    temperature: 1.3,
     top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
+    frequency_penalty: 0.5,
+    presence_penalty: 0.5,
   });
   const { content } = response.choices[0].message;
   await fs.writeFile("./yesterday.txt", content);

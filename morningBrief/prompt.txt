@@ -1,13 +1,14 @@
-Generate a morning brief that will be spoken aloud by Siri.
+Generate a morning brief that will be spoken aloud by AIDEN.
 Have it be one continuous paragraph.
+Be brief
 
 Mention the date (minus the year)
 
 Go over the weather (given previously).
-Write out "degrees fahrenheit" since Siri can't say the symbol well.
+Write out "degrees fahrenheit" since AIDEN can't say the degree symbol well.
 
 Go through each event (given previously).
 
-Make some suggestions on how I could use today to meet my goals using the quote OR something that happend on this date (given previously)
+Make some suggestions on how I could use today to meet my goals using the quote
 
 The tone should be friendly, exciting, funny, and cheerful, and as if you give this this everyday.

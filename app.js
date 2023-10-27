@@ -1,16 +1,16 @@
 const express = require("express");
 const app = express();
 const port = 6135;
-const { loadUserData } = require("./userData");
 
-const morningBrief = require("./morningBrief");
-const events = require("./events");
+const brief = require("./brief");
+const { router: events } = require("./events");
+const { router: weather } = require("./weather");
 
 app.use(express.json());
-app.use("/morningBrief", morningBrief);
+app.use("/brief", brief);
 app.use("/events", events);
+app.use("/weather", weather);
 
-app.listen(port, () => {
-  loadUserData();
+app.listen(port, async () => {
   console.log(`Listening on port ${port}`);
 });

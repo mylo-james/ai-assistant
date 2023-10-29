@@ -15,6 +15,7 @@ const generateResponse = async (brief) => {
   const prompt = await fs.readFile("brief/prompt.txt", "utf8");
   const eventsJSON = await fs.readFile("events/events.json", "utf8");
   const weatherJSON = await fs.readFile("weather/weather.json", "utf8");
+  const pastBriefs = await fs.readFile("brief/brief-history.txt", "utf8");
   const events = JSON.parse(eventsJSON).content;
   const weather = JSON.parse(weatherJSON).content;
   const quote = await getQuote();
@@ -28,11 +29,15 @@ const generateResponse = async (brief) => {
       },
       {
         role: "system",
-        content: `Today's quote is ${quote}`,
+        content: `Here are events planned for today: ${events}`,
       },
       {
         role: "system",
-        content: `Here are events planned for today: ${events}`,
+        content: `Here is the quote for the day: ${quote}, apply it to what's happening lately`,
+      },
+      {
+        role: "system",
+        content: `Here's what you've said before. Try to vary your jokes and the brief structure: ${pastBriefs}`,
       },
       {
         role: "user",
@@ -40,7 +45,7 @@ const generateResponse = async (brief) => {
       },
       {
         role: "user",
-        content: `Today's Date is ${new Date().getDate()}`,
+        content: `Today's Date is ${new Date()}`,
       },
       {
         role: "user",
@@ -48,8 +53,12 @@ const generateResponse = async (brief) => {
           "userData/aboutMe.txt"
         )}`,
       },
+      {
+        role: "user",
+        content: "Max of 125 words",
+      },
     ],
-    temperature: 1.3,
+    temperature: 1.45,
     top_p: 1,
     frequency_penalty: 0.5,
     presence_penalty: 0.5,
@@ -59,6 +68,11 @@ const generateResponse = async (brief) => {
     created: new Date(),
   };
   await fs.writeFile("brief/brief.json", JSON.stringify(obj));
+  await fs.appendFile(
+    "brief/brief-history.txt",
+    response.choices[0].message.content.trim()
+  );
+  await fs.appendFile("brief/brief-history.txt", "- - -");
   return obj.content;
 };
 
